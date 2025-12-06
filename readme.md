@@ -22,11 +22,11 @@ All images are stored in S3 buckets, and a callback endpoint for accessing proce
 
 ##  Features
 
-### ✔ Image Upload
+### Image Upload
 
 Users upload an image via `/upload/`. The API immediately stores the original file in MinIO and triggers an asynchronous processing task.
 
-### ✔ Asynchronous Image Processing
+### Asynchronous Image Processing
 
 Celery handles:
 
@@ -36,7 +36,7 @@ Celery handles:
 
 Processing runs in the background so uploads stay fast.
 
-### ✔ Secure S3 File Storage (MinIO)
+### Secure S3 File Storage (MinIO)
 
 Uploaded and processed files are stored using MinIO with:
 
@@ -49,7 +49,7 @@ Uploaded and processed files are stored using MinIO with:
   uploads/thumbnails/
   ```
 
-### ✔ Status Tracking
+### Status Tracking
 
 Each upload is stored in the database with a state machine:
 
@@ -60,7 +60,7 @@ Each upload is stored in the database with a state machine:
 
 Clients can poll `/upload/<id>/results/` to get latest results.
 
-### ✔ Works for Local Dev & Railway Deployment
+### Works for Local Dev & Railway Deployment
 
 Supports:
 
@@ -92,7 +92,7 @@ project/
 
 ---
 
-## ⚙️ How It Works
+##  How It Works
 
 ### 1️ Upload Endpoint
 
@@ -158,9 +158,6 @@ Handles:
 * generating presigned URLs
 * initializing boto3 client
 
-### 🎛 Serializer (`UploadSerializer`)
-
-Generates presigned URLs on-demand.
 
 ---
 
@@ -215,6 +212,8 @@ DEBUG=False
 
 ## Testing the API
 
+## Using Curl
+
 ### 1. Upload an Image
 
 ```bash
@@ -225,10 +224,95 @@ curl -X POST http://localhost:8000/uploads/ \
 ### 2. Poll the Status
 
 ```bash
-curl http://localhost:8000/uploads/<id>/
+curl http://localhost:8000/uploads/<id>/status
 ```
 
+### 3. Poll the Results
+
+```bash
+curl http://localhost:8000/uploads/<id>/results
+``` 
+
 When `status = completed`, URLs will begin working.
+
+## Testing via Postman
+
+same testing process only diffence is UI and the option to select a file directly to upload without directly using curl
+
+## Test /upload/ (POST)
+
+Open Postman → New Request → POST
+
+URL:
+
+    ```bash
+        http://localhost:8000/upload/
+    ```
+
+
+Under Body → select form-data
+
+Key: file → Type: File → select an image from your computer
+
+Click Send
+
+Response should look like:
+
+``` bash
+{
+  "id": "3f7d1b9e-4c5b-4f0f-bd2d-9e4c4f6d9a11",
+  "status": "pending"
+}
+```
+
+## Test /upload/{id}/status/ (GET)
+
+New Request → GET
+
+URL:
+``` bash
+http://localhost:8000/upload/<id>/status/
+```
+
+Replace `id` with the id returned from /upload/.
+
+Click Send
+
+Response should look like:
+
+```bash
+    {
+  "id": "3f7d1b9e-4c5b-4f0f-bd2d-9e4c4f6d9a11",
+  "status": "completed" #if the upload and processing was successful
+}
+
+```
+
+## Test /upload/{id}/result/ (GET)
+
+New Request → GET
+
+URL:
+``` bash
+http://localhost:8000/upload/<id>/result/
+```
+
+
+Click Send
+
+Response should look like:
+
+``` bash
+{
+    "id": "3f7d1b9e-4c5b-4f0f-bd2d-9e4c4f6d9a11",
+    "original": "http://localhost:9000/uploads/originals/abcd1234.jpg",
+    "resized": "http://localhost:9000/uploads/resized/abcd1234.jpg",
+    "compressed": "http://localhost:9000/uploads/compressed/abcd1234.jpg",
+    "thumbnail": "http://localhost:9000/uploads/thumbnail/abcd1234.jpg"
+}
+```
+
+
 
 ---
 
