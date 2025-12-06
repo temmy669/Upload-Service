@@ -192,6 +192,8 @@ Production environment uses:
 * Railway Redis
 * Railway MinIO object storage
 
+The Celery worker is deployed as a separate service from the main Django application, though it resides in the same repository. This separation ensures that background task processing (e.g., image uploads and processing) does not block or slow down the web server. It also allows independent scaling of the worker based on task load.
+
 Environment variables required:
 
 ```
