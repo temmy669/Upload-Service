@@ -25,9 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-bmg9aw6ie$u9)cmp)1m(6lk_)q2s(#s%6o6=jkmg1mnne1-(q3'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['lucid-fulfillment-production.up.railway.app']
 
 
 # Application definition
