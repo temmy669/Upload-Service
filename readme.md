@@ -1,5 +1,5 @@
 
-# 🖼️ Image Processing API (Django + Celery + MinIO + Railway)
+# Image Processing API (Django + Celery + MinIO)
 
 A scalable asynchronous **image processing service** built with:
 
@@ -16,11 +16,11 @@ This API allows clients to upload an image and automatically generates:
 * **Compressed image** (JPEG 60% quality)
 * **Thumbnail** (300×300)
 
-All images are stored in S3 buckets, and a callback endpoint provides **secure presigned URLs** for accessing processed images.
+All images are stored in S3 buckets, and a callback endpoint for accessing processed images.
 
 ---
 
-## 🚀 Features
+##  Features
 
 ### ✔ Image Upload
 
@@ -40,8 +40,6 @@ Processing runs in the background so uploads stay fast.
 
 Uploaded and processed files are stored using MinIO with:
 
-* private ACL
-* presigned URLs for access
 * clean folder structure:
 
   ```
@@ -60,7 +58,7 @@ Each upload is stored in the database with a state machine:
 * `completed`
 * `failed`
 
-Clients can poll `/upload/<id>/` to get latest results.
+Clients can poll `/upload/<id>/results/` to get latest results.
 
 ### ✔ Works for Local Dev & Railway Deployment
 
@@ -72,7 +70,7 @@ Supports:
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 project/
@@ -96,7 +94,7 @@ project/
 
 ## ⚙️ How It Works
 
-### 1️⃣ Upload Endpoint
+### 1️ Upload Endpoint
 
 Client uploads an image → original file saved to S3 → Celery task started.
 
@@ -106,13 +104,12 @@ Client uploads an image → original file saved to S3 → Celery task started.
 {
   "id": "f1540e82-224f-482f-8f46-a7877670fedc",
   "status": "pending",
-  "original": "https://<presigned-url>"
 }
 ```
 
 ---
 
-### 2️⃣ Background Processing
+### 2️ Background Processing
 
 Celery loads the original file → performs:
 
@@ -124,20 +121,16 @@ Then uploads each processed version back to S3.
 
 ---
 
-### 3️⃣ Result Endpoint
+### 3️ Result Endpoint
 
 Client hits:
 
 ```
-GET /uploads/<id>/
+GET /uploads/<id>/result
 ```
-
-API returns:
-
 ```json
 {
   "id": "f1540e82-224f-482f-8f46-a7877670fedc",
-  "status": "completed",
   "original": "https://<presigned-url>",
   "resized": "https://<presigned-url>",
   "compressed": "https://<presigned-url>",
@@ -145,21 +138,19 @@ API returns:
 }
 ```
 
-All URLs are **temporary secure presigned URLs**, valid for 1 hour.
+----
 
----
+## Key Components
 
-## 🔧 Key Components
-
-### 🗂 Django Model (`Upload`)
+###  Django Model (`Upload`)
 
 Stores image URLs and processing status.
 
-### 🛠 Celery Task (`process_image`)
+###  Celery Task (`process_image`)
 
 Responsible for resizing, compressing, and thumbnail generation using Pillow.
 
-### 📦 Storage Utility (`storage.py`)
+### Storage Utility (`storage.py`)
 
 Handles:
 
@@ -173,7 +164,7 @@ Generates presigned URLs on-demand.
 
 ---
 
-## 🐳 Docker Setup (Local Development)
+## Docker Setup (Local Development)
 
 Local development uses MinIO + Redis via Docker Compose.
 
@@ -190,15 +181,10 @@ Run locally:
 docker-compose up --build
 ```
 
-MinIO console:
-
-```
-http://localhost:9001
-```
 
 ---
 
-## ☁️ Deployment on Railway
+##  Deployment on Railway
 
 Production environment uses:
 
@@ -209,11 +195,11 @@ Production environment uses:
 Environment variables required:
 
 ```
-S3_ENDPOINT_URL=https://storage.railway.app
+S3_ENDPOINT_URL="<s3-base-url>/uploads"
 S3_ACCESS_KEY=<railway-minio-access-key>
 S3_SECRET_KEY=<railway-minio-secret>
 S3_BUCKET_NAME=uploads
-S3_BASE_URL=https://storage.railway.app/uploads
+S3_BASE_URL="<s3-base-url>"
 ```
 
 Recommended:
@@ -225,7 +211,7 @@ DEBUG=False
 ---
 
 
-## 🧪 Testing the API
+## Testing the API
 
 ### 1. Upload an Image
 
@@ -258,23 +244,17 @@ When `status = completed`, URLs will begin working.
 
 ---
 
-## 🧩 Known Challenges Solved
+##  Known Challenges Solved
 
 ✔ Issue: Images were unreadable (0 bytes)
 → Fix: Reset `BytesIO` pointer using `.seek(0)` before uploading.
 
-✔ Issue: Processed files returned “AccessDenied”
-→ Fix: Correct S3 key extraction + presigned URL generation.
-
 ✔ Issue: MinIO public URLs not working in production
 → Fix: Use Railway MinIO endpoint as `S3_BASE_URL`.
 
-✔ Issue: File paths wrong for presigned URLs
-→ Fix: Extract object keys from stored URLs.
-
 ---
 
-## 📌 Future Improvements
+## Future Improvements
 
 * Webhook callback instead of polling
 * Support for PNG / GIF / WEBP output
@@ -284,7 +264,7 @@ When `status = completed`, URLs will begin working.
 
 ---
 
-## 🙌 Author
+## Author
 
 **Favour Adebose**
 Backend Developer — Django • Celery • DevOps • Cloud
