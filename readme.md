@@ -217,20 +217,20 @@ DEBUG=False
 ### 1. Upload an Image
 
 ```bash
-curl -X POST http://localhost:8000/uploads/ \
+curl https://lucid-fulfillment-production.up.railway.app/uploads/ \
   -F "file=@/path/to/image.jpg"
 ```
 
 ### 2. Poll the Status
 
 ```bash
-curl http://localhost:8000/uploads/<id>/status
+curl https://lucid-fulfillment-production.up.railway.app/uploads/<id>/status
 ```
 
 ### 3. Poll the Results
 
 ```bash
-curl http://localhost:8000/uploads/<id>/results
+curl https://lucid-fulfillment-production.up.railway.app/uploads/<id>/results
 ``` 
 
 When `status = completed`, URLs will begin working.
@@ -243,12 +243,9 @@ same testing process only diffence is UI and the option to select a file directl
 
 Open Postman → New Request → POST
 
-URL:
-
-    ```bash
-        http://localhost:8000/upload/
-    ```
-
+```
+   https://lucid-fulfillment-production.up.railway.app/upload/ ```
+```
 
 Under Body → select form-data
 
@@ -271,7 +268,7 @@ New Request → GET
 
 URL:
 ``` bash
-http://localhost:8000/upload/<id>/status/
+https://lucid-fulfillment-production.up.railway.app/upload/<id>/status/
 ```
 
 Replace `id` with the id returned from /upload/.
@@ -280,7 +277,7 @@ Click Send
 
 Response should look like:
 
-```bash
+``` bash
     {
   "id": "3f7d1b9e-4c5b-4f0f-bd2d-9e4c4f6d9a11",
   "status": "completed" #if the upload and processing was successful
@@ -294,7 +291,7 @@ New Request → GET
 
 URL:
 ``` bash
-http://localhost:8000/upload/<id>/result/
+https://lucid-fulfillment-production.up.railway.app/upload/<id>/result/
 ```
 
 
@@ -305,10 +302,10 @@ Response should look like:
 ``` bash
 {
     "id": "3f7d1b9e-4c5b-4f0f-bd2d-9e4c4f6d9a11",
-    "original": "http://localhost:9000/uploads/originals/abcd1234.jpg",
-    "resized": "http://localhost:9000/uploads/resized/abcd1234.jpg",
-    "compressed": "http://localhost:9000/uploads/compressed/abcd1234.jpg",
-    "thumbnail": "http://localhost:9000/uploads/thumbnail/abcd1234.jpg"
+    "original": "https://<bucket-url>/uploads/originals/abcd1234.jpg",
+    "resized": "https://<bucket-url>/uploads/resized/abcd1234.jpg",
+    "compressed": "https://<bucket-url>/uploads/compressed/abcd1234.jpg",
+    "thumbnail": "https://<bucket-url>/uploads/thumbnail/abcd1234.jpg"
 }
 ```
 
